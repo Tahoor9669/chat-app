@@ -1,4 +1,3 @@
-// manage-members-dialog.component.ts
 import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -20,56 +19,48 @@ import { GroupService } from '../../services/group.service';
     MatSnackBarModule
   ],
   template: `
-    <div class="dialog-container">
-      <!-- Header -->
-      <div class="dialog-header">
-        <div class="header-content">
-          <div class="header-left">
-            <mat-icon class="group-icon">people</mat-icon>
-            <div class="header-titles">
-              <h2 class="main-title">Manage Members</h2>
-              <p class="sub-title">{{ data.group.name }}</p>
-            </div>
+    <div class="dialog-wrapper">
+      <!-- Header Section -->
+      <div class="header">
+        <div class="header-main">
+          <div class="title-area">
+            <h2>{{ data.group.name }}</h2>
+            <p>Manage Group Members</p>
           </div>
-          <div class="member-count">
-            <span class="count">{{ filteredMembers.length }}</span>
-            <span class="label">Members</span>
+          <div class="member-stats">
+            <span>{{ filteredMembers.length }}</span>
+            Members
           </div>
         </div>
-      </div>
-
-      <!-- Search -->
-      <div class="search-container">
-        <div class="search-box">
-          <mat-icon class="search-icon">search</mat-icon>
+        <div class="search-area">
+          <mat-icon>search</mat-icon>
           <input 
             type="text" 
             placeholder="Search members..."
             (input)="filterMembers($event)"
-            class="search-input"
           >
         </div>
       </div>
 
       <!-- Members List -->
-      <div class="members-list">
+      <div class="members-container">
         <div *ngFor="let member of filteredMembers" 
-             class="member-card"
-             [class.admin-card]="isGroupAdmin(member)">
-          <!-- Member Info -->
-          <div class="member-info">
-            <div class="member-avatar" [style.background-color]="getRandomColor(member.username)">
+             class="member-item"
+             [class.is-admin]="isGroupAdmin(member)">
+          <!-- Member Details -->
+          <div class="member-left">
+            <div class="avatar" [style.background-color]="getRandomColor(member.username)">
               {{ member.username[0].toUpperCase() }}
             </div>
-            <div class="member-details">
-              <span class="member-name">{{ member.username }}</span>
-              <div class="member-roles">
-                <span class="role-badge" *ngIf="isGroupAdmin(member)">
-                  <mat-icon>admin_panel_settings</mat-icon>
-                  Group Admin
+            <div class="member-info">
+              <span class="name">{{ member.username }}</span>
+              <div class="badges">
+                <span class="badge admin" *ngIf="isGroupAdmin(member)">
+                  <mat-icon>shield</mat-icon>
+                  Admin
                 </span>
-                <span class="role-badge super-admin" *ngIf="isSuperAdmin(member)">
-                  <mat-icon>verified_user</mat-icon>
+                <span class="badge super" *ngIf="isSuperAdmin(member)">
+                  <mat-icon>star</mat-icon>
                   Super Admin
                 </span>
               </div>
@@ -80,232 +71,202 @@ import { GroupService } from '../../services/group.service';
           <div class="member-actions">
             <button 
               *ngIf="!isGroupAdmin(member) && !isSuperAdmin(member)"
-              class="action-button promote-button"
+              class="action-btn promote"
               (click)="promoteToGroupAdmin(member._id)">
               <mat-icon>arrow_upward</mat-icon>
-              Make Admin
+              Admin
             </button>
             <button 
               *ngIf="!isSuperAdmin(member)"
-              class="action-button super-button"
+              class="action-btn super"
               (click)="promoteToSuperAdmin(member._id)">
-              <mat-icon>security</mat-icon>
-              Make Super Admin
+              <mat-icon>star</mat-icon>
+              Super
             </button>
             <button 
               *ngIf="isCurrentUserSuperAdmin() && !isSuperAdmin(member)"
-              class="action-button remove-button"
+              class="action-btn remove"
               (click)="removeUser(member)">
-              <mat-icon>person_remove</mat-icon>
-              Remove
+              <mat-icon>remove_circle</mat-icon>
             </button>
           </div>
         </div>
       </div>
 
       <!-- Footer -->
-      <div class="dialog-footer">
-        <button mat-button class="close-button" (click)="dialogRef.close()">
-          Close
-        </button>
+      <div class="footer">
+        <button class="close-btn" (click)="dialogRef.close()">Done</button>
       </div>
     </div>
   `,
   styles: [`
-    .dialog-container {
-      display: flex;
-      flex-direction: column;
-      height: 80vh;
-      min-width: 700px;
-      background: #f8fafc;
+    .dialog-wrapper {
+      width: 800px;
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+      position: relative;
     }
 
-    .dialog-header {
-      background: white;
-      padding: 24px;
-      border-bottom: 1px solid #e2e8f0;
+    .header {
+      padding: 32px;
+      background: #fafafa;
+      border-radius: 20px 20px 0 0;
     }
 
-    .header-content {
+    .header-main {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-start;
+      margin-bottom: 24px;
     }
 
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .group-icon {
-      font-size: 32px;
-      width: 32px;
-      height: 32px;
-      color: #6366f1;
-    }
-
-    .header-titles {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .main-title {
+    .title-area h2 {
       margin: 0;
+      font-size: 28px;
+      font-weight: 700;
+      color: #111827;
+      line-height: 1.2;
+    }
+
+    .title-area p {
+      margin: 8px 0 0;
+      color: #6b7280;
+      font-size: 16px;
+    }
+
+    .member-stats {
+      background: #4f46e5;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 16px;
+      text-align: center;
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .member-stats span {
+      display: block;
       font-size: 24px;
-      font-weight: 600;
-      color: #1e293b;
+      font-weight: 700;
+      margin-bottom: 4px;
     }
 
-    .sub-title {
-      margin: 0;
-      color: #64748b;
-      font-size: 14px;
-    }
-
-    .member-count {
-      background: #eef2ff;
-      padding: 8px 16px;
-      border-radius: 12px;
+    .search-area {
       display: flex;
-      flex-direction: column;
       align-items: center;
-    }
-
-    .count {
-      font-size: 20px;
-      font-weight: 600;
-      color: #6366f1;
-    }
-
-    .label {
-      font-size: 12px;
-      color: #6366f1;
-    }
-
-    .search-container {
-      padding: 16px 24px;
       background: white;
-      border-bottom: 1px solid #e2e8f0;
-    }
-
-    .search-box {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: #f1f5f9;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
       padding: 12px 16px;
-      border-radius: 12px;
-      transition: all 0.2s ease;
+      transition: all 0.2s;
     }
 
-    .search-box:focus-within {
-      background: white;
-      box-shadow: 0 0 0 2px #6366f1;
+    .search-area:focus-within {
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
     }
 
-    .search-icon {
-      color: #64748b;
+    .search-area mat-icon {
+      color: #9ca3af;
+      margin-right: 12px;
     }
 
-    .search-input {
+    .search-area input {
       border: none;
-      background: transparent;
-      width: 100%;
-      font-size: 14px;
-      color: #1e293b;
       outline: none;
-    }
-
-    .search-input::placeholder {
-      color: #94a3b8;
-    }
-
-    .members-list {
-      flex: 1;
-      overflow-y: auto;
-      padding: 16px 24px;
-    }
-
-    .member-card {
-      background: white;
-      border-radius: 50px;
       width: 100%;
-      padding: 16px;
-      margin-bottom: 12px;
+      font-size: 16px;
+      color: #111827;
+    }
+
+    .search-area input::placeholder {
+      color: #9ca3af;
+    }
+
+    .members-container {
+      padding: 24px 32px;
+    }
+
+    .member-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border: 1px solid #e2e8f0;
-      transition: all 0.2s ease;
+      padding: 16px;
+      background: #f9fafb;
+      border-radius: 16px;
+      margin-bottom: 12px;
+      transition: all 0.2s;
     }
 
-    .member-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    .member-item:hover {
+      background: #f3f4f6;
+      transform: translateY(-1px);
     }
 
-    .admin-card {
-      background: #fafaff;
-      border-color: #e0e7ff;
+    .member-item.is-admin {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
     }
 
-    .member-info {
+    .member-left {
       display: flex;
       align-items: center;
       gap: 16px;
     }
 
-    .member-avatar {
+    .avatar {
       width: 48px;
       height: 48px;
-      border-radius: 12px;
+      border-radius: 14px;
       display: flex;
       align-items: center;
       justify-content: center;
       color: white;
       font-weight: 600;
-      font-size: 18px;
+      font-size: 20px;
     }
 
-    .member-details {
+    .member-info {
       display: flex;
       flex-direction: column;
       gap: 4px;
     }
 
-    .member-name {
-      font-weight: 600;
-      color: #1e293b;
+    .name {
       font-size: 16px;
+      font-weight: 600;
+      color: #111827;
     }
 
-    .member-roles {
+    .badges {
       display: flex;
       gap: 8px;
     }
 
-    .role-badge {
+    .badge {
       display: flex;
       align-items: center;
-      gap: 4px;
       padding: 4px 12px;
       border-radius: 8px;
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 500;
-      background: #eef2ff;
-      color: #6366f1;
     }
 
-    .role-badge mat-icon {
-      font-size: 14px;
-      width: 14px;
-      height: 14px;
+    .badge mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+      margin-right: 4px;
     }
 
-    .role-badge.super-admin {
-      background: #818cf8;
+    .badge.admin {
+      background: #eff6ff;
+      color: #3b82f6;
+    }
+
+    .badge.super {
+      background: #4f46e5;
       color: white;
     }
 
@@ -314,79 +275,74 @@ import { GroupService } from '../../services/group.service';
       gap: 8px;
     }
 
-    .action-button {
+    .action-btn {
       display: flex;
       align-items: center;
-      gap: 8px;
       padding: 8px 16px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 500;
       border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.2s;
+    }
+
+    .action-btn mat-icon {
+      font-size: 18px;
+      margin-right: 4px;
+    }
+
+    .action-btn.promote {
+      background: #4f46e5;
       color: white;
     }
 
-    .action-button mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
+    .action-btn.promote:hover {
+      background: #4338ca;
     }
 
-    .promote-button {
+    .action-btn.super {
       background: #6366f1;
+      color: white;
     }
 
-    .promote-button:hover {
+    .action-btn.super:hover {
       background: #4f46e5;
     }
 
-    .super-button {
-      background: #818cf8;
-    }
-
-    .super-button:hover {
-      background: #6366f1;
-    }
-
-    .remove-button {
+    .action-btn.remove {
       background: #ef4444;
+      color: white;
+      padding: 8px;
     }
 
-    .remove-button:hover {
+    .action-btn.remove:hover {
       background: #dc2626;
     }
 
-    .dialog-footer {
-      padding: 16px 24px;
-      background: white;
-      border-top: 1px solid #e2e8f0;
+    .footer {
+      padding: 24px 32px;
+      background: #fafafa;
+      border-top: 1px solid #e5e7eb;
+      border-radius: 0 0 20px 20px;
       display: flex;
       justify-content: flex-end;
     }
 
-    .close-button {
-      color: #64748b;
+    .close-btn {
+      background: #4f46e5;
+      color: white;
+      border: none;
+      padding: 12px 32px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
     }
 
-    /* Scrollbar Styling */
-    .members-list::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    .members-list::-webkit-scrollbar-track {
-      background: #f1f5f9;
-      border-radius: 4px;
-    }
-
-    .members-list::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 4px;
-    }
-
-    .members-list::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
+    .close-btn:hover {
+      background: #4338ca;
     }
   `]
 })
@@ -425,8 +381,8 @@ export class ManageMembersDialogComponent {
 
   getRandomColor(username: string): string {
     const colors = [
-      '#6366f1', '#8b5cf6', '#d946ef', '#ec4899',
-      '#f43f5e', '#f59e0b', '#84cc16', '#10b981'
+      '#4f46e5', '#7c3aed', '#db2777', '#ea580c',
+      '#059669', '#0284c7', '#7c2d12', '#334155'
     ];
     const index = username.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     return colors[index % colors.length];
@@ -471,18 +427,15 @@ export class ManageMembersDialogComponent {
   removeUser(member: any): void {
     if (confirm(`Are you sure you want to remove ${member.username} from the group?`)) {
       this.groupService.removeUserFromGroup(this.data.group._id, member._id).subscribe({
-        next: (response) => {
+        next: () => {
           this.snackBar.open(`Successfully removed ${member.username} from the group`, 'Close', { 
             duration: 3000,
             panelClass: ['success-snackbar']
           });
-          // Remove user from filtered members list
           this.filteredMembers = this.filteredMembers.filter(m => m._id !== member._id);
-          // Update the group's member count
           if (this.data.group.members) {
             this.data.group.members = this.data.group.members.filter((m: any) => m._id !== member._id);
           }
-          // Close dialog and return the removed user's ID
           this.dialogRef.close({ refresh: true, removedUserId: member._id });
         },
         error: (error) => {
@@ -493,7 +446,5 @@ export class ManageMembersDialogComponent {
         }
       });
     }
-}
-
-
+  }
 }

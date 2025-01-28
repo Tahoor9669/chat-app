@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Real-Time Chat Application
 
 ## Table of Contents
@@ -444,3 +445,6 @@ ng e2e
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+=======
+
+>>>>>>> e3cbc1447b18f80ebdf01cd43112f61b08b28a31
