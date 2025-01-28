@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # Real-Time Chat Application
 
 ## Table of Contents
